@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Browser</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body>
+
+<h2>Files</h2>
+<a href="/upload">Upload file</a> |
+<a href="/logout">Logout</a>
+<ul>
+  {% for f in files %}
+    <li><a href="/download/{{ f }}">{{ f }}</a></li>
+  {% endfor %}
+</ul>
+</body>
+</html>

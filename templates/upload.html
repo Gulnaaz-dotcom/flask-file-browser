@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Create Folder{% endblock %}
+
+{% block content %}
+
+    
+<div class="container">
+
+  <!-- Row + column system centers vertically nicely -->
+  <div class="row justify-content-center align-items-center vh-100">
+
+    <!-- Responsive login card -->
+    <div class="col-md-4 col-sm-4">
+
+      <!-- Bootstrap card component -->
+      <div class="shadow p-3 rounded border-0">
+        <div class="card-body">
+
+          <h6 class="card-title text-center mb-3">
+            Upload
+          </h6>
+
+          <form method="post" enctype="multipart/form-data">
+
+            <!-- File upload -->
+            <div class="mb-2">
+              <label for="files" class="form-label" style="font-size: 0.7rem;">Upload Files</label>
+              <input type="file" name="files" class="form-control" multiple
+              style="font-size: 0.7rem;">
+            </div>
+
+            <!-- Folder upload -->
+              <div class="mb-2">
+              <label for="files" class="form-label" style="font-size: 0.7rem;">Upload Folder</label>
+              <input type="file" name="files" class="form-control" webkitdirectory directory multiple
+              style="font-size: 0.7rem;">
+            </div>
+
+
+            <!-- Submit button full width -->
+            <button class="btn btn-primary w-100" style="font-size: 0.7rem;">
+              Upload
+            </button>
+
+            <!-- Error message from Flask -->
+            {% if error %}
+            <div class="alert alert-danger mt-2" style="font-size: 0.7rem; padding: 10px;">
+              {{ error }}
+            </div>
+            {% endif %}
+
+          </form>
+
+
+          <!-- Zip upload -->
+         {% if current_path %}
+            <form method="post" enctype="multipart/form-data" action="/upload-zip/{{ current_path }}">
+                <!-- Zip upload -->
+                <div class="mb-2 mt-4">
+                <label for="files" class="form-label" style="font-size: 0.7rem;">Upload Zip</label>
+                <input type="file" name="zipfile" accept=".zip"  class="form-control" multiple
+                style="font-size: 0.7rem;">
+                </div>
+
+
+                <!-- Submit button full width -->
+                <button class="btn btn-primary w-100" style="font-size: 0.7rem;">
+                Upload Zip
+                </button>
+
+                <!-- Error message from Flask -->
+                {% if error %}
+                <div class="alert alert-danger mt-2" style="font-size: 0.7rem; padding: 10px;">
+                {{ error }}
+                </div>
+                {% endif %}
+
+            </form>
+        {% else %}
+            <form method="post" enctype="multipart/form-data" action="/upload-zip">
+                <!-- Zip upload -->
+                <div class="mb-2 mt-4">
+                <label for="files" class="form-label" style="font-size: 0.7rem;">Upload Zip</label>
+                <input type="file" name="zipfile" accept=".zip"  class="form-control" multiple
+                style="font-size: 0.7rem;">
+                </div>
+
+
+                <!-- Submit button full width -->
+                <button class="btn btn-primary w-100" style="font-size: 0.7rem;">
+                Upload Zip
+                </button>
+
+                <!-- Error message from Flask -->
+                {% if error %}
+                <div class="alert alert-danger mt-2" style="font-size: 0.7rem; padding: 10px;">
+                {{ error }}
+                </div>
+                {% endif %}
+
+            </form>
+        {% endif %}
+        </div>
+      </div>
+        {% if current_path %}
+            <a href="/browse/{{ current_path }}"
+            class="btn btn-secondary  px-2 py-1 w-100 mt-2" style="font-size: 0.7rem;"
+            >Back</a>
+        {% else %}
+            <a href="/"  class="btn btn-secondary px-2 py-1 w-100 mt-2" style="font-size: 0.7rem;">Back</a>
+        {% endif %}
+    </div>
+
+  </div>
+</div>
+
+
+<!-- 
+    <h3>📦 Upload ZIP & Extract</h3>
+    {% if current_path %}
+    <form method="post" enctype="multipart/form-data" action="/upload-zip/{{ current_path }}">
+        <input type="file" name="zipfile" accept=".zip" required>
+        <button type="submit">Upload Zip</button>
+    </form>
+    {% else %}
+    <form method="post" enctype="multipart/form-data" action="/upload-zip">
+        <input type="file" name="zipfile" accept=".zip" required>
+        <button type="submit">Upload Zip</button>
+    </form>
+    {% endif %}
+    <br> -->
+
+
+
+{% endblock %}

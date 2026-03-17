@@ -1,0 +1,279 @@
+/* for dark theme and beutiful links */
+/* body {
+    font-family: Arial, sans-serif;
+    padding: 40px;
+    background-color: #212121;
+    color: #f3f3f3;
+} */
+/* a {
+    padding: 6px;
+    border: none;
+    color: white;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+a:hover {
+    background-color: #68696a;
+} */
+
+/* Optional global tweak */
+body {
+    font-family: system-ui, sans-serif;
+    font-size: 0.9rem;
+}
+
+/* Example: subtle hover for links */
+a:hover {
+    opacity: 0.8;
+}
+
+/* Dense table styling for file browser */
+
+.table td {
+    padding: 0.3rem 0.5rem;
+}
+.table-container {
+    max-height: 285px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+
+thead th {
+    position: sticky;
+    padding: 0.3rem 0.5rem;
+    top: 0;
+    background: #292727;
+    z-index: 5;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.4);
+}
+
+/* -------------- when table is empty -------------- */
+.table tbody tr:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+
+.empty-folder-state {
+    opacity: 0.8;
+}
+
+
+.top-buttons {
+    margin-bottom: 1rem;
+    width: 50%;
+}
+
+.empty-folder-state i {
+    display: block;
+    margin-bottom: 8px;
+    color: #9ca3af;
+}
+/* ------------ end of when table is empty -------------- */
+
+
+.breadcrumb-current {
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 10px;
+}
+
+.item-count {
+    padding: 5px; 
+    margin-right: 10px;
+    border-radius: 10px;
+    background-color: #5e6566;
+    font-size: 0.75em;
+    font-weight: 600;
+}
+
+/* .item-count:hover {
+    background: #5e6566;
+} */
+/* ===== File browser action buttons ===== */
+
+.action-btn {
+    color: #f1f1f1;
+    border: none;
+    padding: 3px 7px;
+    font-size: 0.6rem;
+    border-radius: 6px;
+
+    /* smooth hover animation */
+    transition: all 0.18s ease;
+}
+
+/* Download button (blue) */
+.action-download {
+    background: #2563eb;
+}
+
+.action-download:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+/* Rename button (gray modern neutral) */
+.action-rename {
+    background: #4b5563;
+}
+
+.action-rename:hover {
+    background: #374151;
+    transform: translateY(-1px);
+}
+
+/* Delete button (red but subtle) */
+.action-delete {
+    background: #dc2626;
+}
+
+.action-delete:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+}
+
+/* ----------------- end of action btns ---------------- */
+
+/* show flash messages */
+.alert {
+    border-radius: 8px;
+}
+
+/* Improve Bootstrap alerts visibility on dark background */
+
+.alert {
+    border-width: 1px;
+    border-style: solid;
+}
+
+/* Stronger contrast variants */
+.alert-success {
+    background-color: #1e4620;
+    border-color: #2ea043;
+    color: #d1e7dd;
+}
+
+.alert-danger {
+    background-color: #5a1a1a;
+    border-color: #dc3545;
+    color: #f8d7da;
+}
+
+.alert-warning {
+    background-color: #664d03;
+    border-color: #ffc107;
+    color: #fff3cd;
+}
+
+.alert-info {
+    background-color: #055160;
+    border-color: #0dcaf0;
+    color: #cff4fc;
+}
+
+
+/* .flash.error {
+    color: red;
+    margin: 10px 0;
+} */
+
+/* ----------------- style for drag and drop file upload ----------------------- */
+/* ===== Drag & Drop Upload Zone ===== */
+
+.drop-zone {
+    width: 85%;
+
+    /* place the div center */
+    margin-left: auto;
+    margin-right: auto;
+
+    border: 2px dashed #4b5563;
+    border-radius: 10px;
+
+    padding: 25px;
+    margin-bottom: 15px;
+
+    text-align: center;
+    cursor: pointer;
+
+    /* Dark-friendly subtle background */
+    background: rgba(255, 255, 255, 0.02);
+
+    /* Smooth animation */
+    transition: all 0.2s ease;
+}
+
+/* Content wrapper */
+.drop-zone-content {
+    pointer-events: none;
+}
+
+/* Icon styling */
+.drop-icon {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    opacity: 0.85;
+}
+
+/* Main text */
+.drop-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #e5e7eb;
+}
+
+/* Drag-over active state */
+.drop-zone.dragover {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.12);
+
+    /* subtle lift effect */
+    transform: scale(1.01);
+}
+
+
+/* ---------------- toast container css ------------------- */
+.toast-container .toast {
+    max-width: 260px;
+}
+
+.toast-body {
+    padding: 0.4rem 0.6rem;
+}
+
+
+
+/* ---------------- overridden by bootstarp no longer use toast container css ------------------- */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+/* Toast message style */
+.my-toast {
+    background: #333;
+    color: white;
+    padding: 12px 18px;
+    margin-top: 10px;
+    border-radius: 6px;
+    opacity: 0.95;
+    font-size: 14px;
+    animation: fadein 0.3s;
+}
+
+/* Fade animation */
+@keyframes fadein {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 0.95;
+        transform: translateY(0);
+    }
+}

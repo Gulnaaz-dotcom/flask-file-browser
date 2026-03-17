@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rename</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body>
+
+<h2>✏ Rename</h2>
+
+<p>Current name: <b>{{ current_name }}</b></p>
+
+<form method="post">
+    <!-- <input type="text" name="new_name" required> -->
+    <input type="text" name="new_name" value="{{ display_name }}" required>
+    <!-- {% if is_file %}
+        <span style="color: gray;">{{ extension }}</span>
+    {% endif %} -->
+    <button type="submit">Rename</button>
+</form>
+
+<br>
+
+<a href="/browse/{{ current_path.rsplit('/', 1)[0] if '/' in current_path else '' }}">
+    ⬅ first Back
+</a>
+{% if current_path %}
+    <a href="/browse/{{ current_path }}">⬅ Back</a>
+{% else %}
+    <a href="/">⬅ Back</a>
+{% endif %}
+</body>
+</html>

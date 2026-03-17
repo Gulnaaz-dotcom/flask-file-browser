@@ -1,0 +1,855 @@
+<!-- this file is now also handle inline rename functionality instead of 
+ redirecting to a new page for rename (i.e. rename.html)-->
+<!-- showing the list of files and folders in table format instead of list with datetime and size -->
+<!-- also contain styling -->
+
+{% extends "base.html" %}
+
+{% block title %}File Browser{% endblock %}
+
+{% block content %}
+
+<!---------- Flash Messages ----------->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+{% if category == 'error' %}
+<div class="alert alert-danger alert-dismissible fade show small" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+
+<h4 style="margin-top: 15px; margin-left: 5px;">📁 File Browser</h4>
+
+
+<!-- ---------------------- drag and drop file folder area ------------------- -->
+<div id="drop-zone" class="drop-zone mb-4 ">
+    <div class="drop-zone-content">
+        <div class="drop-icon">📁</div>
+        <div class="drop-text">
+            Drag & Drop files/folders here
+        </div>
+        <input type="file" hidden id="fileInput" multiple>
+
+        <small class="text-secondary">
+            or click to browse
+        </small>
+    </div>
+</div>
+
+
+<!-- display te list of file in tables -->
+<!--
+Bootstrap container:
+- Adds horizontal padding
+- Keeps layout centered
+- Prevents UI from touching screen edges
+-->
+<!-- <div class="container mt-4"> -->
+<div class="container-fluid px-2 mt-2">
+
+
+    <!-- Responsive wrapper:
+         Makes table horizontally scrollable on small screens
+         VERY important for file browser tables -->
+    <div class="table-responsive px-2">
+
+        <!--
+        Bootstrap table classes:
+        table           → base styling
+        table-dark      → dark mode table (fits your theme)
+        table-hover     → row highlight on hover
+        align-middle    → vertically center cell content
+        -->
+
+
+        <!--------------- Buttons section ------------------>
+        <div class="btn-div d-flex justify-content-between align-items-center">
+
+            <div class="top-buttons d-flex gap-2">
+                <!-- show upload btn -->
+                {% if current_path %}
+                <a href="/upload/{{ current_path }}" class="btn btn-outline-primary px-2 py-1"
+                    style="font-size:0.7rem;">Upload here</a>
+                {% else %}
+                <a href="/upload" class="btn btn-outline-primary px-2 py-1" style="font-size:0.7rem;">Upload here</a>
+                {% endif %}
+
+                <!-- show new folder creation btn -->
+                {% if current_path %}
+                <a href="/create-folder/{{ current_path }}" class="btn btn-outline-success px-2 py-1"
+                    style="font-size:0.7rem;">New Folder</a>
+                {% else %}
+                <a href="/create-folder" class="btn btn-outline-success px-2 py-1" style="font-size:0.7rem;">New
+                    Folder</a>
+                {% endif %}
+
+                {% if current_path %}
+                {% if '/' in current_path %}
+                <a href="/browse/{{ current_path.rsplit('/', 1)[0] }}" class="btn btn-outline-secondary px-2 py-1"
+                    style="font-size:0.7rem;">Back</a>
+                {% else %}
+                <a href="/" class="btn btn-outline-secondary px-2 py-1" style="font-size:0.7rem; ">Back</a>
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <a href="/logout" class="btn btn-outline-danger px-2 py-1 ms-auto" style="font-size:0.7rem;">Logout</a>
+
+        </div>
+
+
+        <!------------- Breadcrumb Navigation ---------------->
+        <div class="mb-3 small fw-semibold">
+
+            {% for crumb in breadcrumbs %}
+
+            {% if crumb.path == "" %}
+
+            <a href="/" class="text-decoration-none text-info">
+                {{ crumb.name }}
+            </a>
+
+            {% else %}
+
+            <a href="/browse/{{ crumb.path }}" class="text-decoration-none text-info">
+                {{ crumb.name }}
+            </a>
+            {% endif %}
+
+            {% if not loop.last %}
+            <span class="text-secondary"> &gt; </span>
+            {% endif %}
+
+            {% endfor %}
+
+        </div>
+        <!-------------End Breadcrumb Navigation ---------------->
+
+        <!--------------------- FIle type and search filter ---------------------->
+        <div class="d-flex justify-content-end" style="width: 100%;">
+
+            <!------------- show item count ----------------->
+            <div class=" small text-secondary mb-3 item-count text-white">
+                {{ item_count }} Item{% if item_count != 1 %}s{% endif %} shown
+            </div>
+
+            <!--------------------- FIle type filter ---------------------->
+            <form method="get" class="mb-3 d-flex gap-2">
+                <div class="input-group input-group-sm">
+
+                    <!-- Preserve sorting -->
+                    <input type="hidden" name="sort" value="{{ sort_by }}">
+                    <input type="hidden" name="order" value="{{ order }}">
+
+                    <!-- Preserve search -->
+                    <input type="hidden" name="search" value="{{ search }}">
+
+                    <!-- File Type Filter -->
+                    <select name="type" class="form-select form-select-sm bg-dark text-light">
+
+                        <option value="all" {% if file_type=="all" %}selected{% endif %}>All Files</option>
+
+                        <option value="image" {% if file_type=="image" %}selected{% endif %}>Images</option>
+
+                        <option value="document" {% if file_type=="document" %}selected{% endif %}>Documents</option>
+
+                        <option value="spreadsheet" {% if file_type=="spreadsheet" %}selected{% endif %}>Spreadsheets
+                        </option>
+
+                        <option value="archive" {% if file_type=="archive" %}selected{% endif %}>Archives</option>
+
+                        <option value="code" {% if file_type=="code" %}selected{% endif %}>Code</option>
+
+                        <option value="media" {% if file_type=="media" %}selected{% endif %}>Media</option>
+
+                    </select>
+
+                    <button class="btn btn-outline-primary" style="margin-right: 20px;">
+                        Apply
+                    </button>
+                </div>
+            </form>
+            <!--------------------- End of FIle type filter ------------------------->
+
+            <!--------------------- Search Box ------------------------->
+            <form method="get" class="mb-3">
+
+                <div class="input-group input-group-sm">
+
+                    <!-- Preserve sorting when searching -->
+                    <input type="hidden" name="sort" value="{{ sort_by }}">
+                    <input type="hidden" name="order" value="{{ order }}">
+
+                    <input type="text" id="searchInput" name="search" value="{{ search }}" placeholder="Search files..."
+                        class="form-control form-control-sm py-0">
+
+                    <button class="btn btn-outline-primary">
+                        Search
+                    </button>
+
+                    <!-- clear button -->
+                    {% if current_path %}
+                    <a href="/browse/{{ current_path }}" class="btn btn-outline-secondary">
+                        Clear
+                    </a>
+                    {% else %}
+                    <a href="/" class="btn btn-outline-secondary">
+                        Clear
+                    </a>
+                    {% endif %}
+
+
+                </div>
+
+            </form>
+            <!---------------------End of Search Box ------------------------->
+
+
+        </div>
+        <!---------------------End of FIle type and search filter ---------------------->
+
+        <div class="table-container">
+            <table class="table table-dark table-hover table-sm align-middle small">
+
+                <!-- Table header -->
+                <thead>
+                    <tr>
+                        <th width="35%" style="background-color: #292727;">
+                            <a href="?sort=name&order={% if sort_by=='name' and order=='asc' %}desc{% else %}asc{% endif %}&search={{ search }}"
+                                class="text-decoration-none text-light">
+                                Name
+                            </a>
+                        </th>
+                        <th width="10%" style="background-color: #292727;">Type</th>
+                        <!-- <th width="10%" class="text-cenetr" style="background-color: #292727;">File Size</th> -->
+                        <th width="10%" class="text-center" style="background-color: #292727;">
+                            <a href="?sort=size&order={% if sort_by=='size' and order=='asc' %}desc{% else %}asc{% endif %}&search={{ search }}"
+                                class="text-decoration-none text-light">
+                                File Size
+                            </a>
+                        </th>
+
+                        <!-- <th width="15%" class="text-cenetr" style="background-color: #292727;">Date Modified</th> -->
+
+                        <th width="15%" class="text-center" style="background-color: #292727;">
+                            <a href="?sort=modified&order={% if sort_by=='modified' and order=='asc' %}desc{% else %}asc{% endif %}&search={{ search }}"
+                                class="text-decoration-none text-light">
+                                Date Modified
+                            </a>
+                        </th>
+                        <th colspan="3" width="14%" class="text-center" style="background-color: #292727;">Actions</th>
+                        <th width="4%" style="background-color: #292727;"></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+
+                        <!-- FILE / FOLDER NAME -->
+                        <td>
+
+                            <!--
+                        text-decoration-none removes underline
+                        fw-semibold adds slight emphasis
+                        -->
+
+                            {% if item.is_dir %}
+
+                            <a href="/browse/{{ current_path }}/{{ item.name }}"
+                                class="text-decoration-none fw-semibold item-text" title="Click to go inside">
+
+                                <!-- Optional icons:
+                                 Bootstrap Icons recommended later -->
+
+                                <i class="bi bi-folder2-open text-warning" style="margin-right: 5px;"></i> {{ item.name
+                                }}
+                            </a>
+                            {% else %}
+
+                            <a href="/browse/{{ current_path }}/{{ item.name }}"
+                                class="text-decoration-none fw-semibold item-text" title="Click to download">
+
+                                <!-- Optional icons:
+                                 Bootstrap Icons recommended later -->
+
+
+                                {% if item.ext in ['png','jpg','jpeg','gif','svg','webp'] %}
+
+                                <i class="bi bi-file-earmark-image text-info" style="margin-right: 5px;"></i>
+
+                                {% elif item.ext in ['pdf'] %}
+
+                                <i class="bi bi-file-earmark-pdf text-danger" style="margin-right: 5px;"></i>
+
+                                {% elif item.ext in ['xls','xlsx','csv'] %}
+
+                                <i class="bi bi-file-earmark-excel text-success" style="margin-right: 5px;"></i>
+
+                                {% elif item.ext in ['doc','docx'] %}
+
+                                <i class="bi bi-file-earmark-word text-primary" style="margin-right: 5px;"></i>
+
+                                {% elif item.ext in ['zip','rar','7z','tar','gz'] %}
+
+                                <i class="bi bi-file-earmark-zip text-secondary" style="margin-right: 5px;"></i>
+
+                                {% elif item.ext in ['mp4','mkv','mov','avi'] %}
+
+                                <i class="bi bi-file-earmark-play text-warning" style="margin-right: 5px;"></i>
+
+                                {% elif item.ext in ['mp3','wav','ogg'] %}
+
+                                <i class="bi bi-file-earmark-music text-warning" style="margin-right: 5px;"></i>
+
+                                {% elif item.ext in ['py','js','html','css','json','java','c','cpp'] %}
+
+                                <i class="bi bi-file-earmark-code text-success" style="margin-right: 5px;"></i>
+
+                                {% elif item.ext in ['txt','md','log'] %}
+
+                                <i class="bi bi-file-earmark-text text-secondary" style="margin-right: 5px;"></i>
+
+                                {% else %}
+
+                                <i class="bi bi-file-earmark text-secondary" style="margin-right: 5px;"></i>
+
+                                {% endif %}
+
+
+                                {{ item.name }}
+                            </a>
+                            {% endif %}
+
+
+                            <!-- Inline rename form -->
+                            <form class="rename-form mt-2" method="post" style="display:none;"
+                                action="/rename/{{ current_path }}/{{ item.name }}">
+
+                                <!-- d-flex = flexbox layout
+                                 gap-2 = spacing between elements -->
+                                <div class="d-flex gap-2">
+
+                                    {% if not item.is_dir %}
+                                    {% set base, ext = item.name.rsplit('.', 1) %}
+
+                                    <!-- form-control = Bootstrap styled input -->
+                                    <input type="text" name="new_name" value="{{ base }}"
+                                        class="form-control form-control-sm py-0">
+
+                                    <span class="text-secondary">
+                                        .{{ ext }}
+                                    </span>
+                                    {% else %}
+                                    <input type="text" name="new_name" value="{{ item.name }}"
+                                        class="form-control form-control-sm py-0">
+                                    {% endif %}
+
+                                    <!-- Small success button -->
+                                    <button class="btn btn-success btn-sm">
+                                        ✔
+                                    </button>
+
+                                </div>
+                            </form>
+
+                        </td>
+
+                        <!-- TYPE COLUMN -->
+                        <td>
+                            <span class="badge bg-secondary">
+                                {{ "Folder" if item.is_dir else "File" }}
+                            </span>
+                        </td>
+
+                        <!-- SIZE COLUMN -->
+                        <td class="text-center">
+
+
+                            {% if item.size == "-" %}
+                            -
+                            {% else %}
+                            {% set kb = item.size / 1024 %}
+                            {% set mb = kb / 1024 %}
+                            {% set gb = mb / 1024 %}
+
+                            {% if gb >= 1 %}
+                            {{ gb | round(0) | int }} GB
+                            {% elif mb >= 1 %}
+                            {{ mb | round(0) | int }} MB
+                            {% else %}
+                            {{ kb | round(0) | int }} KB
+                            {% endif %}
+                            {% endif %}
+
+                        </td>
+
+                        <!-- MODIFIED DATE -->
+                        <td class="text-cenetr">
+                            <small class="text-secondary">
+                                {{ item.modified }}
+                            </small>
+                        </td>
+
+                        <!-- ACTION BUTTONS -->
+                        <td class="text-center">
+
+                            <!-- <div class="d-flex justify-content-center gap-1"> -->
+
+                            {% if item.is_dir %}
+                            <a href="/download-zip/{{ current_path }}/{{ item.name }}"
+                                class="btn btn-sm action-btn action-download">
+                                <i class="bi bi-download"></i> ZIP
+                            </a>
+                            {% endif %}
+
+                        </td>
+                        <td class="text-center">
+                            <button onclick="enableRename(this)" class="btn btn-sm action-btn action-rename">
+                                <i class="bi bi-pencil-square"></i> Rename
+                            </button>
+                        </td>
+
+
+                        <td class="text-center">
+                            <a href="/delete/{{ current_path }}/{{ item.name }}"
+                                onclick="return confirm('Delete {{ item.name }}?');"
+                                class="btn btn-sm action-btn action-delete">
+                                <i class="bi bi-trash3"></i> Delete
+                            </a>
+
+                            <!-- </div> -->
+
+                        </td>
+                        <td></td>
+
+                    </tr>
+                    {% else %}
+
+                    <!-- THIS PART RUNS WHEN items IS EMPTY -->
+
+                    {% if items|length == 0 %}
+
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-secondary">
+
+                            <div class="empty-folder-state">
+
+                                {% if search %}
+
+                                <i class="bi bi-search" style="font-size:2rem;"></i>
+
+                                <div class="mt-2 fw-semibold">
+                                    No files match "{{ search }}"
+                                </div>
+
+                                <small>
+                                    Try a different keyword
+                                </small>
+
+                                {% elif file_type != "all" %}
+
+                                <i class="bi bi-funnel" style="font-size:2rem;"></i>
+
+                                <div class="mt-2 fw-semibold">
+                                    No {{ file_type }} files found
+                                </div>
+
+                                <small>
+                                    Try selecting another file type
+                                </small>
+
+                                {% else %}
+
+                                <i class="bi bi-folder2-open" style="font-size:2rem;"></i>
+
+                                <div class="mt-2 fw-semibold">
+                                    This folder is empty
+                                </div>
+
+                                <small>
+                                    Drag files here or click the upload area above
+                                </small>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+                    </tr>
+
+                    {% endif %}
+
+
+                    {% endfor %}
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+<!--------------- Buttons section ------------------>
+<!-- <div class="bottom-buttons">
+
+    <a href="/logout" class="btn btn-outline-danger  px-2 py-1" style="font-size: 0.7rem;">Logout</a>
+
+</div> -->
+
+<!-- Toast container for showing error mesage with javascript -->
+<!-- Bootstrap Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+<!-- <div id="toast-container"></div> -->
+
+
+
+<script>
+    // show error msg if any only for 8 seconds
+    setTimeout(() => {
+        document.querySelectorAll(".alert").forEach(a => {
+            bootstrap.Alert.getOrCreateInstance(a).close();
+        });
+    }, 10000);
+
+    // setTimeout(() => {
+    //     document.querySelectorAll(".flash").forEach(msg => {
+    //         msg.style.display = "none";
+    //     });
+    // }, 4000);
+
+
+    // show the rename form when rename button is clicked 
+    function enableRename(button) {
+        const row = button.closest("tr");   // go up to the row
+
+        const itemText = row.querySelector(".item-text");
+        const renameForm = row.querySelector(".rename-form");
+
+        if (!itemText || !renameForm) {
+            console.error("Rename elements not found in row");
+            return;
+        }
+
+        // Hide filename text
+        itemText.style.display = "none";
+
+        // Show rename form
+        renameForm.style.display = "inline";
+
+        // Find input field INSIDE THIS FORM
+        const inputField = renameForm.querySelector("input[name='new_name']");
+
+        if (!inputField) {
+            console.error("Rename input field missing");
+            return;
+        }
+
+        // Focus cursor inside textbox
+        inputField.focus();
+
+        // Optional: select entire text for easier renaming
+        inputField.select();
+
+        // Save original value (useful for cancel feature)
+        inputField.dataset.original = inputField.value;
+    }
+
+    // Cancel rename when ESC key is pressed
+    document.addEventListener("keydown", function (event) {
+
+        // Only act if ESC key pressed
+        if (event.key !== "Escape") return;
+
+        // Find any visible rename form
+        const activeForm = document.querySelector(".rename-form[style*='inline']");
+
+        if (!activeForm) return;
+
+        const row = activeForm.closest("tr");
+
+        // Restore original view
+        row.querySelector(".item-text").style.display = "inline";
+
+        //Form hidden
+        activeForm.style.display = "none";
+    });
+
+
+    // Cancel rename if user clicks outside rename form
+    document.addEventListener("click", function (event) {
+
+        const activeForm = document.querySelector(".rename-form[style*='inline']");
+        if (!activeForm) return;
+
+        // If click happened inside form OR rename button → ignore
+        if (
+            // inside textbox or on Rename button -> do nothing
+            activeForm.contains(event.target) ||
+            event.target.textContent.includes("Rename")
+        ) {
+            return;
+        }
+
+        // Otherwise cancel rename
+        const row = activeForm.closest("tr");
+        row.querySelector(".item-text").style.display = "inline";
+        activeForm.style.display = "none";
+    });
+
+    // Validate rename input BEFORE form submits
+    document.addEventListener("submit", function (event) {
+
+        const form = event.target;
+
+        if (!form.classList.contains("rename-form")) return;
+        console.log("Submit handler triggered");
+
+        const input = form.querySelector("input[name='new_name']");
+        if (!input) return;
+
+        const value = input.value.trim();
+
+        if (!value) {
+            event.preventDefault();
+            showToast("Name cannot be empty");
+            return;
+        }
+
+        if (/[\\/:*?"<>|]/.test(value)) {
+            event.preventDefault();
+            showToast("Invalid characters detected.");
+        }
+
+    });
+
+
+    // document.querySelectorAll(".rename-form").forEach(form => {
+
+    //     form.addEventListener("submit", function (event) {
+    //         console.log("Submit handler triggered");
+
+    //         const input = form.querySelector("input[name='new_name']");
+    //         if (!input) return;
+
+    //         const value = input.value.trim();
+
+    //         // Empty name validation
+    //         if (value === "") {
+    //             showToast("Name cannot be empty");
+    //             event.preventDefault(); // stop submission
+    //             return;
+    //         }
+
+    //         // Invalid characters check
+    //         // Windows forbidden chars: \ / : * ? " < > |
+    //         const invalidChars = /[\\/:*?"<>|]/;
+
+    //         if (invalidChars.test(value)) {
+    //             showToast("Invalid characters detected.");
+    //             event.preventDefault();
+    //             return;
+    //         }
+
+    //         // If everything OK → allow submit
+    //     });
+    // });
+
+
+    // for dispalying error message on browse in toast
+
+    function showToast(message, type = "danger") {
+
+        const container = document.querySelector(".toast-container");
+
+        const toastEl = document.createElement("div");
+        toastEl.className = `toast align-items-center text-bg-${type} border-0 small`;
+        toastEl.setAttribute("role", "alert");
+        toastEl.setAttribute("aria-live", "assertive");
+        toastEl.setAttribute("aria-atomic", "true");
+
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast"></button>
+            </div>
+        `;
+
+        container.appendChild(toastEl);
+
+        const toast = new bootstrap.Toast(toastEl, {
+            delay: 5000
+        });
+
+        toast.show();
+
+        toastEl.addEventListener("hidden.bs.toast", () => toastEl.remove());
+    }
+
+
+    // code for capturing dragged file and send to backend
+    const dropZone = document.getElementById("drop-zone");
+    const fileInput = document.getElementById("fileInput");
+
+    dropZone.addEventListener("click", () => {
+        fileInput.click();
+    });
+
+    // upload via click event
+    fileInput.addEventListener("change", function () {
+
+        const files = [];
+
+        for (let file of fileInput.files) {
+            files.push(file);
+        }
+
+        uploadFiles(files);
+
+        // reset input so same file can be selected again
+        fileInput.value = "";
+    });
+
+
+
+    dropZone.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "copy";  // UX improvement
+        dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener("dragleave", function () {
+        dropZone.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener("drop", async function (e) {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+
+        const items = e.dataTransfer.items;
+
+        // added script for handling folder upload as well
+        const files = [];
+
+        // Feature detection
+        if (items && items[0] && items[0].webkitGetAsEntry) {
+            // Chromium browsers (folder upload supported)
+            for (let item of items) {
+                const entry = item.webkitGetAsEntry();
+                if (entry) {
+                    await traverseFileTree(entry, "", files);
+                }
+            }
+        } else {
+            // Fallback: files only (Firefox, others)
+            for (let file of e.dataTransfer.files) {
+                files.push(file);
+            }
+        }
+
+        uploadFiles(files);
+    });
+
+    // for handling drap & drop of folder upload
+    async function traverseFileTree(entry, path, fileList) {
+        return new Promise(resolve => {
+            if (entry.isFile) {
+                entry.file(file => {
+                    file.relativePath = path + file.name;
+                    fileList.push(file);
+                    resolve();
+                });
+            } else if (entry.isDirectory) {
+                const reader = entry.createReader();
+                reader.readEntries(async entries => {
+                    for (let ent of entries) {
+                        await traverseFileTree(ent, path + entry.name + "/", fileList);
+                    }
+                    resolve();
+                });
+            }
+        });
+    }
+
+    function uploadFiles(files) {
+        // const form = document.getElementById("myForm");
+        const formData = new FormData();
+
+        for (let file of files) {
+            // formData.append("files", file); 
+            formData.append("files", file, file.relativePath || file.name); // handle file and folder upload
+
+        }
+
+        // fetch("/upload/{{ current_path }}", {
+        fetch("{{ url_for('upload_root') if not current_path else url_for('upload', path=current_path) }}", {
+            method: "POST",
+            body: formData
+        })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                    showToast("Files uploaded successfully");
+                    console.log(
+                        "UPLOAD URL:",
+                        "{{ url_for('upload_root') if not current_path else url_for('upload', path=current_path) }}"
+                    );
+                    // if current_path exist : /upload/sub_folder_name
+                    // if current_path doesn't exist : /upload
+
+                } else {
+                    showToast("Upload failed");
+                    console.error(
+                        "UPLOAD URL:",
+                        "{{ url_for('upload_root') if not current_path else url_for('upload', path=current_path) }}"
+                    );
+
+                }
+            });
+    }
+
+    // Live search filetring
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const searchInput = document.getElementById("searchInput");
+        const rows = document.querySelectorAll("tbody tr");
+
+        searchInput.addEventListener("input", function () {
+
+            const filter = searchInput.value.toLowerCase();
+
+            rows.forEach(row => {
+
+                const nameCell = row.querySelector("td");
+
+                if (!nameCell) return;
+
+                const text = nameCell.innerText.toLowerCase();
+
+                if (text.includes(filter)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+
+            });
+
+        });
+
+    });
+
+</script>
+
+
+{% endblock %}

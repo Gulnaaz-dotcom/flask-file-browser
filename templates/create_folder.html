@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Create Folder{% endblock %}
+
+{% block content %}
+
+
+<div class="container">
+
+  <!-- Row + column system centers vertically nicely -->
+  <div class="row justify-content-center align-items-center vh-100">
+
+    <!-- Responsive login card -->
+    <div class="col-md-3 col-sm-4">
+
+      <!-- Bootstrap card component -->
+      <div class="shadow p-3 rounded border-0">
+        <div class="card-body">
+
+          <h6 class="card-title text-center mb-3">
+            Create Folder
+          </h6>
+
+          <form method="post">
+
+            <!-- Folder name field -->
+            <div class="mb-2">
+              <input name="folder_name" class="form-control" placeholder="Folder name" style="font-size: 0.7rem;">
+            </div>
+
+
+            <!-- Submit button full width -->
+            <button class="btn btn-primary w-100" style="font-size: 0.7rem;">
+              Create
+            </button>
+
+            <!-------------------- back button -------------->
+            {% if current_path %}
+            <a href="/browse/{{ current_path }}" class="btn btn-secondary  px-2 py-1"
+              style="font-size: 0.7rem; margin-top: 10px; width: 100%;">Back</a>
+            {% else %}
+            <a href="/" class="btn btn-secondary px-2 py-1" style="font-size: 0.7rem; margin-top: 10px; width: 100%;">Back</a>
+            {% endif %}
+
+            <!-- Error message from Flask -->
+            {% if error %}
+            <div class="alert alert-danger mt-2"
+              style="font-size: 0.7rem; padding: 10px;">
+              {{ error }}
+            </div>
+            {% endif %}
+
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
