@@ -16,7 +16,7 @@ This project demonstrates backend engineering, authentication systems, and pract
 * Rename, and delete files
 * Breadcrumb navigation for seamless directory traversal
 * User authentication (login/signup/logout)
-* Search and filter functionality
+* Search sort and filter functionality
 * Secure file handling and access control
 * Clean and structured UI for file management
 
@@ -30,10 +30,6 @@ This project demonstrates backend engineering, authentication systems, and pract
 
 ---
 
-## 📸 Screenshots
-
-
----
 
 ## ⚙️ Installation & Setup
 
@@ -57,7 +53,7 @@ python app.py
 
 ---
 
-## 🔐 Authentication System
+## Authentication System
 
 * Secure user registration and login
 * Session-based authentication
@@ -66,21 +62,29 @@ python app.py
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 flask-file-browser/
 │── app.py
+│── auth.py
+│── delete.py
+│── files.py
+│── folders.py
+│── rename.py
+│── upload.py
+│── zip_download.py
+│── zip_upload.py
 │── templates/
 │── static/
 │── shared/
 │── requirements.txt
-│── README.md
+│── readme.md
 ```
 
 ---
 
-## 🎯 What This Project Demonstrates
+## What This Project Demonstrates
 
 * Backend development with Flask
 * Routing and request handling
@@ -106,12 +110,12 @@ This project simulates a **mini cloud storage/file manager**, similar in concept
 
 ## 👨‍💻 Author
 
-**Gulnaaz-dotcom**
+**Gulnaaz**
 
 * GitHub: [https://github.com/Gulnaaz-dotcom](https://github.com/Gulnaaz-dotcom)
 ---
 
-## 📌 Notes for Recruiters
+## Notes for Recruiters
 
 This project was built to demonstrate:
 
@@ -119,9 +123,5 @@ This project was built to demonstrate:
 * Ability to design and implement real-world features like authentication and file management
 * Clean, maintainable, and scalable code practices
 
----
 
-## 📄 License
-
-This project is licensed under the MIT License.
 
