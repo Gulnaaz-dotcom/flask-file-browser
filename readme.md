@@ -1,24 +1,22 @@
 # 🔐 Flask File Browser (Secure Web-Based File Manager)
 
-A full-featured **web-based file management system** built using Flask that allows users to securely upload, organize, and manage files and folders through an intuitive browser interface.
+A **full-stack web-based file management system** built with Flask and PostgreSQL, designed to provide users with a secure and intuitive interface for managing files and directories online. 
 
-This project demonstrates backend engineering, authentication systems, and practical file handling in a real-world application scenario.
+The application emphasizes robust backend architecture, efficient file handling, and user-centric design, simulating real-world cloud storage functionality.
 
 ---
 
 ## Key Features
 
-* Upload files and entire folders
-* ZIP upload and extract folders
-* Drag-and-drop files and folder upload
-* ZIP download folders
-* Create, rename, and delete folders
-* Rename, and delete files
-* Breadcrumb navigation for seamless directory traversal
-* User authentication (login/signup/logout)
-* Search sort and filter functionality
-* Secure file handling and access control
-* Clean and structured UI for file management
+* Secure user authentication (signup, login, logout) with access control
+* Upload files and entire folders, including ZIP upload with automatic extraction
+* Download folders as ZIP archives
+* Create, rename, and delete files and directories
+* Drag-and-drop interface for seamless file uploads
+* Breadcrumb navigation for intuitive directory traversal
+* Advanced search, sorting, and filtering capabilities
+* Structured and responsive UI built with Bootstrap
+* Secure file storage and handling to prevent unauthorized access
 
 ---
 
